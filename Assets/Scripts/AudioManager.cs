@@ -11,7 +11,10 @@ public class AudioManager : MonoBehaviour
         Correct,
         FinalRound,
         GameOver,
-        Go
+        Go,
+        Shoot,
+        Hurt,
+        Reload
     }
     
     [SerializeField] private List<AudioClip> audioClips;

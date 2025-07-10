@@ -15,17 +15,19 @@ public class Enemy : MonoBehaviour
     
     private bool _isInArea = false;
     private bool _isAttacking = false;
-    
-    private GameManager _gameManager;
-    private Player _player;
-    
-    private Animator _animator;
-    private AudioSource _voiceSound;
 
+    [SerializeField] private GameObject bloodSplat;
+    private GameManager _gameManager;
+    
+    private Player _player;
+    private Animator _animator;
+
+    private float _health = 50.0f;
+    private bool _isDead = false;
+    
     private void Awake()
     {
         _animator = GetComponentInChildren<Animator>();
-        _voiceSound = GetComponentInChildren<AudioSource>();
         
         _gameManager = FindAnyObjectByType<GameManager>();
         _player = _gameManager.GetPlayer;
@@ -95,8 +97,8 @@ public class Enemy : MonoBehaviour
     {
         _isAttacking = true;
         _animator.SetBool("Attack", true);
-        _voiceSound.PlayOneShot(_voiceSound.clip);
         yield return new WaitForSeconds(1.5f);
+        if (_player) _player.Hurt();
         _animator.SetBool("Attack", false);
         _isAttacking = false;
         
@@ -130,4 +132,34 @@ public class Enemy : MonoBehaviour
     }
     #endregion
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (!other.gameObject.CompareTag("Bullet")) return;
+        Hurt();
+    }
+
+    public void Hurt()
+    {
+        if (_isDead) return;
+        CreateSplat();
+        _health -= 20f;
+        if (_health <= 0)
+        {
+            _isDead = true;
+            gameObject.SetActive(false);
+        }
+    }
+
+    private void CreateSplat()
+    {
+        Quaternion randomAngle = Quaternion.Euler(0,0,Random.Range(0f, 360f));
+        GameObject go = Instantiate(bloodSplat, transform.position, randomAngle);
+        if (go) go.transform.localScale *= Random.Range(0.8f, 1.2f);
+    }
+    
+    void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(1f, 0f, 0f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position, 10);
+    }
 }

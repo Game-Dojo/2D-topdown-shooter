@@ -19,10 +19,10 @@ public class PlayerWeapon : MonoBehaviour
     public AudioSource bulletSound;
     
     private const float LaserDistance = 8.0f;
-    private const int MaxBulletsChamber = 5;
+    private const int MaxBulletsChamber = 6;
     
-    private int _totalBullets = 15;
-    private int _currentBullets = 5;
+    private int _totalBullets = 24;
+    private int _currentBullets = 6;
     private Vector3 _lastPointPosition;
     
     private Animator _animator;
@@ -74,7 +74,7 @@ public class PlayerWeapon : MonoBehaviour
         if (_currentBullets <= 0) return;
         
         //bulletSound.PlayOneShot(bulletSound.clip);
-        _audioManager.PlayAudioPitched(AudioManager.AudioList.Correct);
+        _audioManager.PlayAudioPitched(AudioManager.AudioList.Shoot);
         
         _currentBullets -= 1;
         _animator.SetTrigger("Shoot");
@@ -85,6 +85,7 @@ public class PlayerWeapon : MonoBehaviour
     void Reload()
     {
         if (_totalBullets < MaxBulletsChamber) return;
+        _audioManager.PlayAudioPitched(AudioManager.AudioList.Reload);
         StartCoroutine("ReloadCoroutine");
     }
 
@@ -113,7 +114,7 @@ public class PlayerWeapon : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Gizmos.color = new Color(1f, 0f, 0f, 0.7f);
+        Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, 5);
     }
 }

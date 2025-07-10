@@ -11,11 +11,20 @@ public class Player : MonoBehaviour
     
     private Camera _camera;
     private PlayerWeapon _playerWeapon;
+
+    private GameManager _gameManager;
+    private AudioManager _audioManager;
+    
+    private float _health = 100f;
+    private bool _isDead = false;
     
     private void Awake()
     {
         _camera = Camera.main;
         _playerWeapon = GetComponent<PlayerWeapon>();
+        
+        _gameManager = FindAnyObjectByType<GameManager>();
+        _audioManager = _gameManager.GetAudioManager;
     }
 
     void Update()
@@ -40,5 +49,13 @@ public class Player : MonoBehaviour
         
         //transform.right = mouseToWorld - transform.position;
         transform.right = Vector3.Lerp(transform.right, mouseToWorld - transform.position, rotationSpeed * Time.deltaTime);
+    }
+
+    public void Hurt()
+    {
+        if (_isDead) return;
+        _audioManager.PlayAudioPitched(AudioManager.AudioList.Hurt);
+        _health -= 5.0f;
+        if (_health <= 0) _isDead = true;
     }
 }
