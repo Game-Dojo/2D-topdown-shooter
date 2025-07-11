@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
+using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
@@ -8,13 +11,15 @@ public class Enemy : MonoBehaviour
         Idle,
         Wonder,
         Follow,
-        Attack
+        Attack,
+        Chase
     }
     
-    private State _state = State.Idle;
+    [SerializeField] private State _state = State.Idle;
     
     private bool _isInArea = false;
     private bool _isAttacking = false;
+    private bool _isChasing = false;
 
     [SerializeField] private GameObject bloodSplat;
     private GameManager _gameManager;
@@ -32,7 +37,19 @@ public class Enemy : MonoBehaviour
         _gameManager = FindAnyObjectByType<GameManager>();
         _player = _gameManager.GetPlayer;
     }
-    
+
+    private void Start()
+    {
+        _player.GetWeapon.GetShootEvent.AddListener(() =>
+        {
+            if (Vector3.Distance(_player.transform.position, transform.position) < 40.0f)
+            {
+                Debug.Log("HUBO UN DISPARO");
+                SetState(State.Chase);
+            }
+        });
+    }
+
     private void Update()
     {
         switch (_state)
@@ -47,6 +64,9 @@ public class Enemy : MonoBehaviour
                 break;
             case State.Attack:
                 AttackState();
+                break;
+            case State.Chase:
+                ChaseState();
                 break;
             default:
                 IdleState();
@@ -64,6 +84,12 @@ public class Enemy : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         _isInArea = false;
+    }
+    
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (!other.gameObject.CompareTag("Bullet")) return;
+        Hurt();
     }
 
     #region State Machine
@@ -84,6 +110,28 @@ public class Enemy : MonoBehaviour
         // Check if players exit trigger area
         if (!_isInArea) SetState(State.Idle);
         if (InAttackRange()) SetState(State.Attack);
+    }
+    
+    private void ChaseState()
+    {
+        // Movement
+        transform.right = _player.transform.position - transform.position;
+        
+        // Check for Walls
+        transform.position += transform.right * (1.5f * Time.deltaTime);
+        
+        // Check if players exit trigger area
+        if (!_isChasing)
+        {
+            _isChasing = true;
+            Invoke("ResetToIdleState", 4.0f);
+        }
+    }
+
+    private void ResetToIdleState()
+    {
+        SetState(State.Idle);
+        _isChasing = false;
     }
 
     private void AttackState()
@@ -132,15 +180,10 @@ public class Enemy : MonoBehaviour
     }
     #endregion
 
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (!other.gameObject.CompareTag("Bullet")) return;
-        Hurt();
-    }
-
     public void Hurt()
     {
         if (_isDead) return;
+        
         CreateSplat();
         _health -= 20f;
         if (_health <= 0)
@@ -152,14 +195,17 @@ public class Enemy : MonoBehaviour
 
     private void CreateSplat()
     {
-        Quaternion randomAngle = Quaternion.Euler(0,0,Random.Range(0f, 360f));
+        Quaternion randomAngle = Quaternion.Euler(0,0, Random.Range(0f, 360f));
         GameObject go = Instantiate(bloodSplat, transform.position, randomAngle);
         if (go) go.transform.localScale *= Random.Range(0.8f, 1.2f);
     }
     
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1f, 0f, 0f, 0.7f);
+        Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, 10);
+        
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, 40);
     }
 }

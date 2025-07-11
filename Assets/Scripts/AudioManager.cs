@@ -50,7 +50,6 @@ public class AudioManager : MonoBehaviour
         _musicMuted = !_musicMuted;
         SetMixerState("MusicVolume", _musicMuted);
     }
-
     public void ToggleSfx()
     {
         _soundMuted = !_soundMuted;

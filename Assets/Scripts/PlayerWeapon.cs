@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using Random = UnityEngine.Random;
 
@@ -29,6 +30,8 @@ public class PlayerWeapon : MonoBehaviour
 
     private GameManager _gameManager;
     private AudioManager _audioManager;
+    
+    private UnityEvent _onShoot = new UnityEvent();
     
     private void Awake()
     {
@@ -72,8 +75,7 @@ public class PlayerWeapon : MonoBehaviour
     void Shoot()
     {
         if (_currentBullets <= 0) return;
-        
-        //bulletSound.PlayOneShot(bulletSound.clip);
+        _onShoot?.Invoke();
         _audioManager.PlayAudioPitched(AudioManager.AudioList.Shoot);
         
         _currentBullets -= 1;
@@ -111,6 +113,8 @@ public class PlayerWeapon : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         muzzleFlash.intensity = 0f;
     }
+
+    public UnityEvent GetShootEvent => _onShoot;
 
     void OnDrawGizmos()
     {

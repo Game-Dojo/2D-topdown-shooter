@@ -58,4 +58,6 @@ public class Player : MonoBehaviour
         _health -= 5.0f;
         if (_health <= 0) _isDead = true;
     }
+
+    public PlayerWeapon GetWeapon => _playerWeapon;
 }

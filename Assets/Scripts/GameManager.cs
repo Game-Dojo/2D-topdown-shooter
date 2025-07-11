@@ -1,13 +1,22 @@
+using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public Player player;
+    [SerializeField] private Player player;
+    [SerializeField] private Transform enemiesContainer;
+    
     private AudioManager _audioManager;
+
+    
 
     private void Awake()
     {
         _audioManager = GetComponent<AudioManager>();
+    }
+
+    private void Start()
+    {
     }
 
     public Player GetPlayer => player;

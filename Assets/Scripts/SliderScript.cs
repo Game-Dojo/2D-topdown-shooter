@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -21,9 +20,9 @@ public class SliderScript : MonoBehaviour
         _gameManager = FindAnyObjectByType<GameManager>();
         _audioManager = _gameManager.GetAudioManager;
         
-        _slider.onValueChanged.AddListener((v) =>
+        _slider.onValueChanged.AddListener((value) =>
         {
-            _audioManager.SetMasterVolume(v);
+            _audioManager.SetMasterVolume(value);
         });
     }
 }
