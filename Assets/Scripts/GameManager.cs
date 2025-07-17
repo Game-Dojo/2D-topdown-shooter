@@ -8,8 +8,6 @@ public class GameManager : MonoBehaviour
     
     private AudioManager _audioManager;
 
-    
-
     private void Awake()
     {
         _audioManager = GetComponent<AudioManager>();

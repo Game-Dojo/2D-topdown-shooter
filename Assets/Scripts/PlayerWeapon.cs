@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
@@ -31,7 +32,8 @@ public class PlayerWeapon : MonoBehaviour
     private GameManager _gameManager;
     private AudioManager _audioManager;
     
-    private UnityEvent _onShoot = new UnityEvent();
+    private readonly UnityEvent _onShoot = new UnityEvent();
+    private readonly UnityEvent _onReload = new UnityEvent();
     
     private void Awake()
     {
@@ -45,6 +47,8 @@ public class PlayerWeapon : MonoBehaviour
         
         muzzleFlash.intensity = 0;
         _lastPointPosition = laserRenderer.GetPosition(1);
+        
+        _onReload?.Invoke();
     }
     
     void DrawLaser()
@@ -88,6 +92,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         if (_totalBullets < MaxBulletsChamber) return;
         _audioManager.PlayAudioPitched(AudioManager.AudioList.Reload);
+        
         StartCoroutine("ReloadCoroutine");
     }
 
@@ -97,6 +102,8 @@ public class PlayerWeapon : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
         _totalBullets -= MaxBulletsChamber;
         _currentBullets = MaxBulletsChamber;
+        
+        _onReload?.Invoke();
     }
     
     void InstantiateBullet()
@@ -115,7 +122,9 @@ public class PlayerWeapon : MonoBehaviour
     }
 
     public UnityEvent GetShootEvent => _onShoot;
-
+    public UnityEvent GetReloadEvent => _onReload;
+    public int GetTotalBullets => _totalBullets;
+    
     void OnDrawGizmos()
     {
         Gizmos.color = Color.green;

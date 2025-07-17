@@ -40,6 +40,11 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
+        CheckForShoot();
+    }
+
+    private void CheckForShoot()
+    {
         _player.GetWeapon.GetShootEvent.AddListener(() =>
         {
             if (Vector3.Distance(_player.transform.position, transform.position) < 40.0f)
@@ -50,7 +55,7 @@ public class Enemy : MonoBehaviour
         });
     }
 
-    private void Update()
+    private void Update() 
     {
         switch (_state)
         {
